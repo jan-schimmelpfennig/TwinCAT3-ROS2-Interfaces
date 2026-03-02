@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="MAIN" Id="{29449686-51f8-4ee2-a45f-7ec2ea18fd3d}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	testInt32ToROS AT %Q* :DINT :=0 ;
+	testBoolToROS AT %Q*:BOOL :=TRUE;
+	testInt32FromROS AT %I* :DINT :=0;
+	testBoolFromROS AT %I*:BOOL:=FALSE;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[testInt32ToROS := testInt32ToROS+1;
+]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="2" Count="1" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

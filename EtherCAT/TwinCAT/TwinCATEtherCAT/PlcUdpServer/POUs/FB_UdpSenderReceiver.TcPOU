@@ -1,0 +1,573 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.8">
+  <POU Name="FB_UdpSenderReceiver" Id="{57016792-6c77-4b33-9daa-61027db4d907}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'c++_compatible'}
+FUNCTION_BLOCK FB_UdpSenderReceiver IMPLEMENTS ITcIoUdpProtocolRecv
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	{attribute 'TcInitSymbol'}
+	oid : OTCID; 
+	ipUdp : ITcIoUdpProtocol; // Interface to handle UDP protocol operations (sending and receiving)
+	ipUdprec :ITcIoUdpProtocolRecv; // Interface for receiving UDP data
+	nReceivedPakets : UINT; // counter for received packets
+	countertoSim AT %Q* : UDINT ; // counter to simulink
+	uLastReceivedIP : U_IpAdr;  // stores the last received IP address
+	hrInit : HRESULT; // result of initialization
+	hrSend  : HRESULT;  // result of the senddata operation
+	hrReceive : HRESULT; // result of the receivedata operation
+	
+	nUdpPort : UINT; // local udp port used for communication
+	
+	nIpDest : UDINT; // destination ip address
+	nPortDest : UINT; // destination port for UDP transmission
+	
+	pDataToSend : POINTER TO ST_toROS; // Pointer to the data structure from the PLC instance 
+	nUdpToSendSize : UINT; // Size of the UDP packet to be sent
+	
+	pDataToSendKeyword : POINTER TO BYTE; // Pointer to the keyword byte in the data to send
+	pDataToSendCrc8 : POINTER TO BYTE; // Pointer to the CRC8 byte in the data to send
+	pDataToSendCounter : POINTER TO BYTE; // Pointer to the connection check counter byte in the data to send
+	pDataToSendRoundtripCounter : POINTER TO BYTE; // Pointer to the round-trip counter byte in the data to send
+	
+	pDataReceived : POINTER TO ST_fromROS; // Pointer to the data structure received 
+	pDataReceivedRoundtripCounter : POINTER TO BYTE; // Pointer to the round-trip counter in the received data
+	nUdpReceivedSize : UINT; // Size of the received UDP packet
+	
+	pDataReceivedBytes : POINTER TO BYTE; // Pointer to the receiveqd data bytes
+	pDataReceivedKeyword : POINTER TO BYTE; // Pointer to the keyword byte in the received data
+	pDataReceivedCrc8 : POINTER TO BYTE; // Pointer to the CRC8 byte in the received data
+	
+	nCrc8Send : BYTE; // CRC8 value for the data to send
+	nCrc8Receive : BYTE; // CRC8 value for the received data
+	nKeyword : BYTE; // Keyword used to identify the data
+	
+	txBuf: ARRAY[0..15] OF BYTE;  //transmission buffer
+	txLen: UINT;		//length of the transmission buffer (number of bytes)
+	
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Check if the UDP protocol interface is initialized
+IF ipUdp <> 0 THEN
+	//Check whether UDP packets have arrived
+	//checkReceived triggers the callback --> this will call the ReceiveData function
+	ipUdp.CheckReceived(); 
+	txLen:=Serialize(pDataToSend, ADR(txBuf),SIZEOF(txBuf)); //serialize the data and write it into the buffer
+	//check if the serialization was succesful
+	IF txLen > 0 THEN
+		//send the UDP data to the specified IP address and port.
+		hrSend:=ipUdp.SendData(
+			nIpDest,
+			nPortDest,
+			nUdpToSendSize,
+			txLen,
+			ADR(txBuf),
+			FALSE,
+			0
+			);
+	END_IF
+END_IF
+
+// Some code to implement watchdog, keyword check, and CRC8 checksum (not tested yet)
+
+// Check whether keyword and CRC checksum are correct
+//pDataReceivedKeyword := pDataReceived; // Point to the beginning of the received data (keyword)
+//pDataReceivedCrc8 := pDataReceivedBytes + 1; // Point to byte offset for checksum byte in received data
+//nCrc8Receive := ComputeCrc8IgnoringFirstTwoElements(pDataReceived, nUdpReceivedSize);
+
+
+//IF (nKeyword = pDataReceivedKeyword^) AND (nCrc8Receive = pDataReceivedCrc8^) THEN
+//	pDataReceived := pDataReceivedBytes + 4;
+//END_IF
+
+
+// Set up pointers for data to send
+//pDataToSendKeyword := pDataToSendBytes; // Point to the beginning of the data to send (keyword)
+//pDataToSendKeyword^ := nKeyword; // Assign the keyword to the first byte of the data
+
+// Set up the connection check counter to be sent
+//pDataToSendCounter := pDataToSendBytes + 2; // Point to the byte offset where the connection check counter will be stored
+//pDataToSendCounter^ := nConnectionCheckCounterToFalcon; // Set the counter value
+//nConnectionCheckCounterToFalcon := (nConnectionCheckCounterToFalcon + 1) MOD 255; // Increment the counter, wrapping around at 255
+
+// Synchronize the round-trip counter with the received data
+//pDataToSendRoundtripCounter := pDataToSendBytes + 3; // Point to the byte offset for the round-trip counter in the data to send
+//pDataReceivedRoundtripCounter := pDataReceived + 3; // Point to the round-trip counter in the received data
+//pDataToSendRoundtripCounter^ := pDataReceivedRoundtripCounter^; // Copy the received round-trip counter to the data to send
+
+// Calculate the CRC8 checksum for the data to be sent, ignoring the first two bytes
+//nCrc8Send := ComputeCrc8IgnoringFirstTwoElements(pDataToSend, nUdpToSendSize); 
+//pDataToSendCrc8 := pDataToSendBytes + 1; // Point to the byte offset for the CRC8 in the data to send
+//pDataToSendCrc8^ := nCrc8Send; // Assign the calculated CRC8 value
+
+//pDataToSendData := pDataToSendBytes + 4; // Point to the byte offset for the actual data bytes
+//pDataToSendData := pDataToSend;
+]]></ST>
+    </Implementation>
+    <Method Name="ComputeCrc8IgnoringFirstTwoElements" Id="{ce647a6d-3208-4820-9b1c-6eb86a484964}">
+      <Declaration><![CDATA[METHOD ComputeCrc8IgnoringFirstTwoElements : BYTE
+VAR_INPUT
+	pByteArray : POINTER TO BYTE;
+	nLength : UINT;
+END_VAR
+VAR
+	crc : UINT;
+	extract : UINT;
+	sum : UINT;
+	i: UINT;
+	tempI : BYTE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[crc := 0;
+pByteArray := pByteArray + 2;
+
+FOR i := 2 TO nLength - 1 BY 1 DO
+	extract := pByteArray^;
+	FOR tempI := 8 TO 1 BY -1 DO
+		sum := (crc XOR extract) AND 1;
+		crc := SHR(crc, 1);
+		IF sum > 0 THEN
+			crc := crc XOR 140;
+		END_IF
+		extract := SHR(extract, 1);
+	END_FOR
+	pByteArray := pByteArray + 1;
+END_FOR
+
+ComputeCrc8IgnoringFirstTwoElements := UINT_TO_BYTE(crc);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Deserialize" Id="{59235917-9410-4069-a2ff-4371b660caf4}">
+      <Declaration><![CDATA[METHOD Deserialize : BOOL
+VAR_INPUT
+	pBuf: POINTER TO BYTE; //pointer to buffer with received bytes
+	size: UDINT;  //buffer size
+END_VAR
+VAR_IN_OUT
+	payload: POINTER TO ST_fromROS; //write the bytes into the variables defined in the struct
+END_VAR
+
+VAR
+	idx: UINT:=0;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//Several SAFETY CHECKS
+//check the size
+IF size <> 9 THEN 
+	Deserialize:=FALSE;
+END_IF
+//check whether the message begins with the header
+IF pBuf[0]<> 16#AA THEN 
+	Deserialize:=FALSE;
+END_IF
+//check whether the message ends with the footer
+IF pBuf[8]<>16#55 THEN 
+	Deserialize:=FALSE; 
+END_IF
+
+//unpack here the payload of your message
+//Payload starts at index 3
+idx:= 3;
+payload^.aByte := pBuf[idx];
+idx:= idx+1;
+
+//extract the 32bit integer
+//We cast the byte into a UDINT. This turns basically the 8bit value into a 32bit value
+//then we shift to the left (least significant bit). The OR combines the bits.
+payload^.counter := TO_UDINT(pBuf[idx]) 
+					OR SHL(TO_UDINT(pBUF[idx+1]),8)
+					OR SHL(TO_UDINT(pBUF[idx+2]),16) 
+					OR SHL(TO_UDINT(pBUF[idx+3]),24) ;
+idx:=idx+4;
+
+Deserialize:=TRUE;
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_exit" Id="{7f7e8f2f-3a9c-4381-98d6-747b52de4ae4}">
+      <Declaration><![CDATA[{attribute 'conditionalshow'}
+METHOD FB_exit : BOOL
+VAR_INPUT
+	bInCopyCode : BOOL; // if TRUE, the exit method is called for exiting an instance that is copied afterwards (online change).
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT bInCopyCode THEN // no online change
+	IF ipUdp <> 0 THEN 
+		ipUdp.UnregisterReceiver(nUdpPort); // Shutdown
+		FW_SafeRelease(ADR(ipUdp));
+		FB_exit := TRUE; 
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_init" Id="{21dc9f43-8ed9-498d-9868-bedff47b2fc5}">
+      <Declaration><![CDATA[{attribute 'conditionalshow'}
+METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	nIpDestA_ : UINT;
+	nIpDestB_ : UINT;
+	nIpDestC_ : UINT;
+	nIpDestD_ : UINT;
+	nPortDest_ : UINT;
+	nPortSrc_ : UINT;
+	pDataToSend_ : POINTER TO ST_toROS;
+	pDataReceived_ : POINTER TO ST_fromROS;
+	nKeyword_ : BYTE;
+END_VAR
+VAR
+	ipSrv : ITComObjectServer;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[nUdpPort := nPortSrc_;
+
+nIpDest := nIpDestA_ * 256 * 256 * 256 + nIpDestB_ * 256 * 256 + nIpDestC_ * 256 + nIpDestD_;
+nPortDest := nPortDest_;
+
+pDataToSend := pDataToSend_;
+nUdpToSendSize := SIZEOF(ST_toROS); 
+
+
+pDataReceived := pDataReceived_;
+nUdpReceivedSize := SIZEOF(ST_fromROS);
+
+nKeyword := nKeyword_;
+
+
+
+IF NOT bInCopyCode THEN // no online change
+	IF ipUdp = 0 AND oid <> 0 THEN
+	    hrInit := FW_ObjMgr_GetObjectInstance(	oid:=oid, 
+											iid:=TC_GLOBAL_IID_LIST.IID_ITcIoUdpProtocol, 
+											pipUnk:=ADR(ipUdp) );
+		IF SUCCEEDED(hrInit) THEN 
+			IF  SUCCEEDED(ipUdp.RegisterReceiver(nUdpPort, THIS^)) THEN //open port
+				FB_init := TRUE;
+			ELSE 
+				FB_init := FALSE; 
+				FW_SafeRelease(ADR(ipUdp));
+			END_IF
+		END_IF
+	ELSIF oid = 0 THEN 
+		FB_init := FALSE; 
+		hrInit := ERR_INVALID_PARAM; 				
+	END_IF
+END_IF
+
+
+
+
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_reinit" Id="{e6571b12-6d66-4c2b-85ec-7f81b4e2dd64}">
+      <Declaration><![CDATA[{attribute 'conditionalshow'}
+METHOD FB_reinit : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (ipUdp <> 0) THEN 
+	ipUdp.RegisterReceiver(nUdpPort, THIS^);
+	FB_reinit := TRUE; 
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReceiveData" Id="{7ab2653a-dfb6-4c4b-8085-8f5442b9085e}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'ReceiveData'}
+{attribute 'c++_compatible'}
+{attribute 'signature_flag' := '33554688'}
+{attribute 'pack_mode' := '4'}
+{attribute 'show'}
+{attribute 'minimal_input_size' := '4'}
+METHOD ReceiveData : HRESULT
+VAR_INPUT
+	ipAddr	: UDINT;
+	udpDestPort	: UINT;
+	udpSrcPort	: UINT;
+	nData	: UDINT;
+	pData	: PVOID;
+	pVlan	: POINTER TO ETYPE_VLAN_HEADER := 0;
+END_VAR
+
+VAR
+	rxBuf: ARRAY[0..31] OF BYTE; //receive buffer of 32 bytes
+	ok: BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[nReceivedPakets := nReceivedPakets+1;
+countertoSim:= countertoSim+1;
+uLastReceivedIP.ipAdrInternal := ipAddr;
+
+
+//verify that the data which should be read fits into the buffer
+IF nData <=SIZEOF(rxBUF) THEN
+	//copy the received data into the received buffer
+	MEMCPY(ADR(rxBuf), pData, nData);
+	//deserialize the received data
+	ok:=Deserialize(pBuf :=ADR(rxBuf), size:=nData, payload:=pDataReceived);	
+END_IF
+
+ReceiveData:=S_OK;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Serialize" Id="{15b7e7a4-7552-47a9-bf29-87062904e918}">
+      <Declaration><![CDATA[METHOD Serialize : UINT
+VAR_INPUT
+	payload : POINTER TO ST_toROS;  //pointer to the data structure that you want to send to ROS
+	pBuf: POINTER TO BYTE; //pointer to the buffer that will be sent
+	bufSize : UINT;
+END_VAR
+
+VAR
+	idx: UINT:=0;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//Buffer must be large enough otherwise return
+IF bufSize <9 THEN
+	Serialize:=0;
+	RETURN;
+END_IF
+
+
+//Construct the Application Frame
+//header
+pBuf[idx] := 16#AA; idx := idx+1;
+
+//Payload Size (uint 16, little endian)
+// convert the decimal number of X bytes into Hex. Then split into LSB and MSB. 
+// e.g. 300 dec = 0x012C --> LSB:2C MSB:01
+pBuf[idx] := 5; //LSB 
+idx:=idx+1;
+pBuf[idx]:=0; //MSB
+idx:=idx+1;
+
+//payload 
+//the byte
+pBuf[idx]:=payload^.aByte; idx:=idx+1;
+
+//the counter variable
+//remark: for having the full control we copy the bytes step by step and not use memcpy
+//to_byte will truncate the integer and only the LSB are kept while the rest is discarded
+//with SHR the bits are shifted to the right
+pBuf[idx]:=TO_BYTE(payload^.counter); idx:=idx+1; //LSB
+pBuf[idx]:=TO_BYTE(SHR(payload^.counter,8)); idx:=idx+1; 
+pBuf[idx]:=TO_BYTE(SHR(payload^.counter,16)); idx:=idx+1;
+pBuf[idx]:=TO_BYTE(SHR(payload^.counter,24)); idx:=idx+1; //MSB
+
+//footer 
+pBuf[idx]:=16#55; idx:=idx+1;
+
+//return the value of the index to see how many bytes were serialized
+Serialize:= idx;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TcAddRef" Id="{991355a2-8b91-40a0-8a15-ef5eb4584e74}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'TcAddRef'}
+{attribute 'c++_compatible'}
+{attribute 'signature_flag' := '33554688'}
+{attribute 'pack_mode' := '4'}
+{attribute 'show'}
+{attribute 'minimal_input_size' := '4'}
+METHOD TcAddRef : UDINT
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TcQueryInterface" Id="{5e6dd7ea-8b31-4e99-abab-3c32950b2f7f}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'TcQueryInterface'}
+{attribute 'c++_compatible'}
+{attribute 'signature_flag' := '33554688'}
+{attribute 'pack_mode' := '4'}
+{attribute 'show'}
+{attribute 'minimal_input_size' := '4'}
+METHOD TcQueryInterface : HRESULT
+VAR_INPUT
+	iid	: REFERENCE TO IID;
+	pipItf	: POINTER TO PVOID;
+END_VAR
+VAR
+	ipUdpRecv : ITcIoUdpProtocolRecv;
+	ipUnknown : ITcUnknown;	
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF GuidsEqual(ADR(iid), ADR(TC_GLOBAL_IID_LIST.IID_ITcIoUdpProtocolRecv)) THEN
+	ipUdpRecv := THIS^; // cast to interface pointer
+	pipItf^ := ITCUNKNOWN_TO_PVOID(ipUdpRecv);
+	TcAddRef();
+	TcQueryInterface := S_OK;
+ELSIF GuidsEqual(ADR(iid), ADR(TC_GLOBAL_IID_LIST.IID_ITcUnknown)) THEN
+	ipUnknown := THIS^; // cast to interface pointer
+	pipItf^ := ITCUNKNOWN_TO_PVOID(ipUnknown);
+	TcAddRef();
+	TcQueryInterface := S_OK;
+ELSE
+	TcQueryInterface := E_HRESULTAdsErr.NOINTERFACE ; //Call super if this fb extends some other
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TcRelease" Id="{59447b7e-aec1-47de-9c33-8b1804c71281}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'TcRelease'}
+{attribute 'c++_compatible'}
+{attribute 'signature_flag' := '33554688'}
+{attribute 'pack_mode' := '4'}
+{attribute 'show'}
+{attribute 'minimal_input_size' := '4'}
+METHOD TcRelease : UDINT
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_UdpSenderReceiver">
+      <LineId Id="484" Count="0" />
+      <LineId Id="3" Count="0" />
+      <LineId Id="620" Count="1" />
+      <LineId Id="4" Count="0" />
+      <LineId Id="605" Count="0" />
+      <LineId Id="607" Count="0" />
+      <LineId Id="606" Count="0" />
+      <LineId Id="618" Count="0" />
+      <LineId Id="608" Count="0" />
+      <LineId Id="610" Count="1" />
+      <LineId Id="613" Count="4" />
+      <LineId Id="612" Count="0" />
+      <LineId Id="609" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="603" Count="1" />
+      <LineId Id="491" Count="0" />
+      <LineId Id="490" Count="0" />
+      <LineId Id="493" Count="0" />
+      <LineId Id="502" Count="0" />
+      <LineId Id="495" Count="0" />
+      <LineId Id="501" Count="0" />
+      <LineId Id="497" Count="0" />
+      <LineId Id="494" Count="0" />
+      <LineId Id="498" Count="1" />
+      <LineId Id="492" Count="0" />
+      <LineId Id="217" Count="0" />
+      <LineId Id="132" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="133" Count="0" />
+      <LineId Id="485" Count="0" />
+      <LineId Id="257" Count="0" />
+      <LineId Id="256" Count="0" />
+      <LineId Id="258" Count="0" />
+      <LineId Id="260" Count="0" />
+      <LineId Id="486" Count="0" />
+      <LineId Id="345" Count="0" />
+      <LineId Id="344" Count="0" />
+      <LineId Id="348" Count="0" />
+      <LineId Id="346" Count="0" />
+      <LineId Id="487" Count="0" />
+      <LineId Id="300" Count="0" />
+      <LineId Id="302" Count="1" />
+      <LineId Id="301" Count="0" />
+      <LineId Id="505" Count="0" />
+      <LineId Id="504" Count="0" />
+      <LineId Id="507" Count="0" />
+      <LineId Id="391" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_UdpSenderReceiver.ComputeCrc8IgnoringFirstTwoElements">
+      <LineId Id="5" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="21" Count="4" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="27" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_UdpSenderReceiver.Deserialize">
+      <LineId Id="1" Count="31" />
+    </LineIds>
+    <LineIds Name="FB_UdpSenderReceiver.FB_exit">
+      <LineId Id="3" Count="2" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="6" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_UdpSenderReceiver.FB_init">
+      <LineId Id="82" Count="0" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="85" Count="1" />
+      <LineId Id="89" Count="1" />
+      <LineId Id="93" Count="0" />
+      <LineId Id="150" Count="0" />
+      <LineId Id="92" Count="0" />
+      <LineId Id="88" Count="0" />
+      <LineId Id="113" Count="0" />
+      <LineId Id="132" Count="0" />
+      <LineId Id="131" Count="0" />
+      <LineId Id="94" Count="1" />
+      <LineId Id="84" Count="0" />
+      <LineId Id="3" Count="4" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="41" Count="2" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="76" Count="2" />
+      <LineId Id="75" Count="0" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_UdpSenderReceiver.FB_reinit">
+      <LineId Id="3" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="4" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_UdpSenderReceiver.ReceiveData">
+      <LineId Id="22" Count="0" />
+      <LineId Id="194" Count="0" />
+      <LineId Id="4" Count="0" />
+      <LineId Id="211" Count="0" />
+      <LineId Id="210" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="66" Count="0" />
+      <LineId Id="212" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="213" Count="0" />
+      <LineId Id="129" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_UdpSenderReceiver.Serialize">
+      <LineId Id="1" Count="36" />
+    </LineIds>
+    <LineIds Name="FB_UdpSenderReceiver.TcAddRef">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_UdpSenderReceiver.TcQueryInterface">
+      <LineId Id="14" Count="3" />
+      <LineId Id="37" Count="4" />
+      <LineId Id="18" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_UdpSenderReceiver.TcRelease">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.8">
+  <DUT Name="ST_toROS" Id="{280ea391-d58b-4372-b280-cf5a314200c4}">
+    <Declaration><![CDATA[TYPE ST_toROS : 
+//this is the payload that you want to send to ROS. Please notice that this is not the application frame
+// (no footers, no headers, no checksums, no payload length here pls) 
+STRUCT
+	aByte: BYTE; //uint8_t
+	counter: UDINT; //uint32_t
+	// add your own variables to send (don't forget to change it on the client side as well)
+END_STRUCT
+END_TYPE
+
+//for reference the data types in  TC3: 
+// https://infosys.beckhoff.com/english.php?content=../content/1033/tc3_plc_intro/2529399691.html&id=]]></Declaration>
+  </DUT>
+</TcPlcObject>

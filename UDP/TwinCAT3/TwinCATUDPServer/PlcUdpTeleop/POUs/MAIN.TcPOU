@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.8">
+  <POU Name="MAIN" Id="{e96d7a0d-bb8f-4136-b08d-2b507f1fe644}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	stUdpToSend AT %I* : ST_UdpToROS; 
+	stUdpReceived AT %Q* : ST_UdpFromROS; 
+	
+	
+	fbUdpSenderReceiver : FB_UdpSenderReceiver(
+	   
+		nIpDestA_ := 50,
+		nIpDestB_ := 50,
+		nIpDestC_ := 50,
+		nIpDestD_ := 1,
+		nPortDest_ := 11000,
+		nPortSrc_ := 10000,
+		pDataToSend_ := ADR(stUdpToSend), 
+		pDataReceived_ := ADR(stUdpReceived),
+		nKeyword_ := 42
+		
+		);	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[fbUdpSenderReceiver();
+stUdpToSend.counter:=stUdpToSend.counter+1; //example, to be removed :)
+]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="2" Count="0" />
+      <LineId Id="183" Count="0" />
+      <LineId Id="331" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

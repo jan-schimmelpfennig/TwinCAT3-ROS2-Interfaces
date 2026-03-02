@@ -1,0 +1,786 @@
+<?xml version="1.0"?>
+<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.12">
+	<DataTypes>
+		<DataType>
+			<Name GUID="{0613F904-C3B8-7832-CE9C-72619A88318C}" AutoDeleteType="true">ST_toROS</Name>
+			<BitSize>64</BitSize>
+			<SubItem>
+				<Name>aByte</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
+				<Comment><![CDATA[uint8_t]]></Comment>
+				<BitSize>8</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>counter</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<Comment><![CDATA[uint32_t]]></Comment>
+				<BitSize>32</BitSize>
+				<BitOffs>32</BitOffs>
+			</SubItem>
+		</DataType>
+		<DataType>
+			<Name GUID="{FFD98FEA-2A50-B201-9F04-FBB822814421}" AutoDeleteType="true">ST_fromROS</Name>
+			<BitSize>64</BitSize>
+			<SubItem>
+				<Name>aByte</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
+				<Comment><![CDATA[Keyword : USINT;
+Crc8 : USINT;
+Counter : USINT;
+RoundtripC : USINT;]]></Comment>
+				<BitSize>8</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>counter</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>32</BitOffs>
+			</SubItem>
+		</DataType>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-00200000000C}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..11] OF BIT</Name>
+			<BitSize>12</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>12</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-002000000001}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..0] OF BIT</Name>
+			<BitSize>1</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>1</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-00200000000A}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..9] OF BIT</Name>
+			<BitSize>10</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>10</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-002000000020}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..3] OF BYTE</Name>
+			<BitSize>32</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000001}">BYTE</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>4</Elements>
+			</ArrayInfo>
+		</DataType>
+	</DataTypes>
+	<ImageDatas>
+		<ImageData Id="1000">424dd6020000000000003600000028000000100000000e0000000100180000000000a0020000c40e0000c40e00000000000000000000ff00ffff00ffff00ff808080808080808080808080808080808080808080808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ff0000c00000c0ffffffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ff0000c00000c0ffffffc0c0c000ffffc0c0c000ffff808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ff0000c00000c0ffffffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ff0000c00000c0ffffffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ff0000c00000c0ffffffc0c0c0ff0000c0c0c0ff0000808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ff0000c00000c0ffffffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ff0000c00000c0ffffffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ff0000c00000c0ffffffc0c0c00000ffc0c0c00000ff808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ff0000c00000c0ffffffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ff0000c00000c0ffffffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ff0000c00000c0ffffffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ff0000c00000c0ffffffc0c0c0008000c0c0c0008000808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ff0000c00000c0ffffffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff</ImageData>
+		<ImageData Id="1001">424de6000000000000007600000028000000100000000e000000010004000000000070000000120b0000120b0000100000001000000000000000000080000080000000808000800000008000800080800000c0c0c000808080000000ff0000ff000000ffff00ff000000ff00ff00ffff0000ffffff00dddddd88888888dddddddd77777778dddddddd77888778dddddddd77888778dddddddd77888778dddddddd77777778dddddddd77888778dd9b9b9b77888778ddb9b9b977888778dd9b9b9b77777778ddb9b9b9777a7778dd9b9b9b777a7778ddb9b9b9777a7778dd9b9b9b77777778dd</ImageData>
+		<ImageData Id="1002">424dd6020000000000003600000028000000100000000e0000000100180000000000a0020000c40e0000c40e00000000000000000000ff00ffff00ffff00ffff00ffff00ffff00ff808080808080808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff</ImageData>
+	</ImageDatas>
+	<Project ProjectGUID="{7B2DC73A-EFC5-4DAA-800C-8087312DDA56}" TargetNetId="5.34.150.86.1.1" Target64Bit="true" ShowHideConfigurations="#x106">
+		<System>
+			<Tasks>
+				<Task Id="3" Priority="23" CycleTime="10000" AmsPort="350" AdtTasks="true">
+					<Name>PlcTask</Name>
+				</Task>
+				<Task Id="4" Priority="20" CycleTime="100000" AmsPort="351" AdtTasks="true">
+					<Name>PlcTask1</Name>
+				</Task>
+			</Tasks>
+		</System>
+		<Plc>
+			<Project Disabled="true" GUID="{296C9069-DF80-4AE9-97CE-E5547F33E20A}" Name="PlcUdpServer" PrjFilePath="PlcUdpServer\PlcUdpServer.plcproj" TmcFilePath="PlcUdpServer\PlcUdpServer.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{726A8C17-F76E-A0FF-AABA-53BB597F7C50}" TmcPath="PlcUdpServer\PlcUdpServer.tmc">
+					<Name>PlcUdpServer Instance</Name>
+					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
+					<Vars VarGrpType="2" AreaNo="1">
+						<Name>PlcTask Outputs</Name>
+						<Var>
+							<Name>MAIN.stUdpReceived</Name>
+							<Type GUID="{FFD98FEA-2A50-B201-9F04-FBB822814421}">ST_fromROS</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.fbUdpSenderReceiver.countertoSim</Name>
+							<Comment><![CDATA[ counter to simulink]]></Comment>
+							<Type>UDINT</Type>
+						</Var>
+					</Vars>
+					<Vars VarGrpType="1">
+						<Name>PlcTask Inputs</Name>
+						<Var>
+							<Name>MAIN.stUdpToSend</Name>
+							<Type GUID="{0613F904-C3B8-7832-CE9C-72619A88318C}">ST_toROS</Type>
+						</Var>
+					</Vars>
+					<Contexts>
+						<Context>
+							<Id>0</Id>
+							<Name>PlcTask</Name>
+							<ManualConfig>
+								<OTCID>#x02010030</OTCID>
+							</ManualConfig>
+							<Priority>23</Priority>
+							<CycleTime>1000000</CycleTime>
+						</Context>
+					</Contexts>
+					<InitSymbols>
+						<InitSymbol>
+							<Name>MAIN.fbUdpSenderReceiver.oid</Name>
+							<Type GUID="{18071995-0000-0000-0000-00000000000F}">OTCID</Type>
+							<AreaNo>#x00000003</AreaNo>
+							<Data>10000101</Data>
+						</InitSymbol>
+					</InitSymbols>
+					<TaskPouOids>
+						<TaskPouOid Prio="23" OTCID="#x08502001"/>
+					</TaskPouOids>
+				</Instance>
+			</Project>
+			<Project GUID="{6DA2048D-A583-4A7C-B9BB-B6C8159040C0}" Name="example" PrjFilePath="example\example.plcproj" TmcFilePath="example\example.tmc" ReloadTmc="true" AmsPort="852" FileArchiveSettings="#x000e" SymbolicMapping="true">
+				<Instance Id="#x08502040" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{0D1633DC-2AD8-05C3-E8FE-534EC7C6B373}" TmcPath="example\example.tmc">
+					<Name>example Instance</Name>
+					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
+					<Vars VarGrpType="2" AreaNo="1">
+						<Name>PlcTask Outputs</Name>
+						<Var>
+							<Name>MAIN.testInt32ToROS</Name>
+							<Type>DINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.testBoolToROS</Name>
+							<Type>BOOL</Type>
+						</Var>
+					</Vars>
+					<Vars VarGrpType="1">
+						<Name>PlcTask Inputs</Name>
+						<Var>
+							<Name>MAIN.testBoolFromROS</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.testInt32FromROS</Name>
+							<Type>DINT</Type>
+						</Var>
+					</Vars>
+					<UnrestoredVarLinks ImportTime="2026-02-12T11:50:49">
+						<OwnerA Name="InputDst" Prefix="TIPC^example^example Instance" Type="1">
+							<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 1 (EK1200)^Term 2 (EL6695)">
+								<Link VarA="MAIN.testUint32FromROS" TypeA="UDINT" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000008}" VarB="IO Inputs^uint32FromROS" RestoreInfo="ANotFound"/>
+							</OwnerB>
+						</OwnerA>
+						<OwnerA Name="OutputSrc" Prefix="TIPC^example^example Instance" Type="2">
+							<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 1 (EK1200)^Term 2 (EL6695)">
+								<Link VarA="MAIN.testUint32ToROS" TypeA="UDINT" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000008}" VarB="IO Outputs^uint32ToROS" RestoreInfo="ANotFound"/>
+							</OwnerB>
+						</OwnerA>
+					</UnrestoredVarLinks>
+					<Contexts>
+						<Context>
+							<Id>0</Id>
+							<Name>PlcTask</Name>
+							<ManualConfig>
+								<OTCID>#x02010040</OTCID>
+							</ManualConfig>
+							<Priority>20</Priority>
+							<CycleTime>10000000</CycleTime>
+						</Context>
+					</Contexts>
+					<TaskPouOids>
+						<TaskPouOid Prio="20" OTCID="#x08502041"/>
+					</TaskPouOids>
+				</Instance>
+			</Project>
+		</Plc>
+		<Io>
+			<Device Id="1" DevType="111" DevFlags="#x0003" AmsPort="28673" AmsNetId="5.34.150.86.2.1" RemoteName="Device 1 (EtherCAT)" InfoImageId="2">
+				<Name>Device 1 (EtherCAT)</Name>
+				<AddressInfo>
+					<Ccat>
+						<Address>-268435456</Address>
+						<Offset>131072</Offset>
+						<Size>8192</Size>
+						<BaseAddr>0</BaseAddr>
+						<BusNo>4</BusNo>
+						<SlotNo>0</SlotNo>
+						<VendorId>5612</VendorId>
+						<DeviceId>20480</DeviceId>
+						<Dma>
+							<Address>0</Address>
+							<Offset>4096</Offset>
+							<Size>256</Size>
+							<BaseAddr>2</BaseAddr>
+							<RxChn>0</RxChn>
+							<TxChn>1</TxChn>
+						</Dma>
+						<Identification>
+							<Value>498694182</Value>
+							<Version>1</Version>
+							<Size>256</Size>
+						</Identification>
+					</Ccat>
+				</AddressInfo>
+				<Image Id="1" AddrType="9" ImageType="3">
+					<Name>Image</Name>
+				</Image>
+				<Box Id="1" BoxType="9099">
+					<Name>Term 1 (EK1200)</Name>
+					<ImageId>1000</ImageId>
+					<EtherCAT PdiType="#x0100" CycleMBoxPollingTime="0" VendorId="#x00000002" ProductCode="#x04b02c52" RevisionNo="#x00001388" InfoDataState="false" PortPhys="49" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="EK1200-5000 EtherCAT Power supply (2A E-Bus)" Desc="EK1200" PortABoxInfo="#x00ffffff"/>
+					<Box Id="2" BoxType="9099" BoxFlags="#x00000020">
+						<Name>Term 2 (EL6695)</Name>
+						<ImageId>1001</ImageId>
+						<Xml>
+							<TreeItem>
+								<Profile>
+									<Dictionary>
+										<DataTypes>
+											<DataType>
+												<Name>BOOL</Name>
+												<BitSize>1</BitSize>
+											</DataType>
+											<DataType>
+												<Name>DINT</Name>
+												<BitSize>32</BitSize>
+											</DataType>
+											<DataType>
+												<Name>UDINT</Name>
+												<BitSize>32</BitSize>
+											</DataType>
+											<DataType>
+												<Name>UINT</Name>
+												<BitSize>16</BitSize>
+											</DataType>
+											<DataType>
+												<Name>USINT</Name>
+												<BitSize>8</BitSize>
+											</DataType>
+											<DataType>
+												<Name>DT1A08</Name>
+												<BitSize>80</BitSize>
+												<SubItem>
+													<SubIdx>0</SubIdx>
+													<Name>SubIndex 000</Name>
+													<Type>USINT</Type>
+													<BitSize>8</BitSize>
+													<BitOffs>0</BitOffs>
+													<Flags>
+														<Access WriteRestrictions="PreOP">rw</Access>
+														<Category>o</Category>
+													</Flags>
+												</SubItem>
+												<SubItem>
+													<SubIdx>1</SubIdx>
+													<Name>SubIndex 001</Name>
+													<Type>UDINT</Type>
+													<BitSize>32</BitSize>
+													<BitOffs>16</BitOffs>
+													<Flags>
+														<Access WriteRestrictions="PreOP">rw</Access>
+														<Category>o</Category>
+													</Flags>
+												</SubItem>
+												<SubItem>
+													<SubIdx>2</SubIdx>
+													<Name>SubIndex 002</Name>
+													<Type>UDINT</Type>
+													<BitSize>32</BitSize>
+													<BitOffs>48</BitOffs>
+													<Flags>
+														<Access WriteRestrictions="PreOP">rw</Access>
+														<Category>o</Category>
+													</Flags>
+												</SubItem>
+											</DataType>
+											<DataType>
+												<Name>DT1C12ARR</Name>
+												<BaseType>UINT</BaseType>
+												<BitSize>16</BitSize>
+												<ArrayInfo>
+													<LBound>1</LBound>
+													<Elements>1</Elements>
+												</ArrayInfo>
+											</DataType>
+											<DataType>
+												<Name>DT1C12</Name>
+												<BitSize>32</BitSize>
+												<SubItem>
+													<SubIdx>0</SubIdx>
+													<Name>SubIndex 000</Name>
+													<Type>USINT</Type>
+													<BitSize>8</BitSize>
+													<BitOffs>0</BitOffs>
+													<Flags>
+														<Access>rw</Access>
+														<Category>o</Category>
+													</Flags>
+												</SubItem>
+												<SubItem>
+													<Name>Elements</Name>
+													<Type>DT1C12ARR</Type>
+													<BitSize>16</BitSize>
+													<BitOffs>16</BitOffs>
+													<Flags>
+														<Access>rw</Access>
+														<Category>o</Category>
+													</Flags>
+												</SubItem>
+											</DataType>
+											<DataType>
+												<Name>DT1C13ARR</Name>
+												<BaseType>UINT</BaseType>
+												<BitSize>16</BitSize>
+												<ArrayInfo>
+													<LBound>1</LBound>
+													<Elements>1</Elements>
+												</ArrayInfo>
+											</DataType>
+											<DataType>
+												<Name>DT1C13</Name>
+												<BitSize>32</BitSize>
+												<SubItem>
+													<SubIdx>0</SubIdx>
+													<Name>SubIndex 000</Name>
+													<Type>USINT</Type>
+													<BitSize>8</BitSize>
+													<BitOffs>0</BitOffs>
+													<Flags>
+														<Access>rw</Access>
+														<Category>o</Category>
+													</Flags>
+												</SubItem>
+												<SubItem>
+													<Name>Elements</Name>
+													<Type>DT1C13ARR</Type>
+													<BitSize>16</BitSize>
+													<BitOffs>16</BitOffs>
+													<Flags>
+														<Access>rw</Access>
+														<Category>o</Category>
+													</Flags>
+												</SubItem>
+											</DataType>
+											<DataType>
+												<Name>DT6000</Name>
+												<BitSize>56</BitSize>
+												<SubItem>
+													<SubIdx>0</SubIdx>
+													<Name>SubIndex 000</Name>
+													<Type>USINT</Type>
+													<BitSize>8</BitSize>
+													<BitOffs>0</BitOffs>
+													<Flags>
+														<Access>rw</Access>
+														<Category>o</Category>
+													</Flags>
+												</SubItem>
+												<SubItem>
+													<SubIdx>1</SubIdx>
+													<Name>int32ToROS</Name>
+													<Type>DINT</Type>
+													<BitSize>32</BitSize>
+													<BitOffs>16</BitOffs>
+													<Flags>
+														<Access>rw</Access>
+														<Category>o</Category>
+														<PdoMapping>R</PdoMapping>
+													</Flags>
+												</SubItem>
+												<SubItem>
+													<SubIdx>2</SubIdx>
+													<Name>BoolToROS</Name>
+													<Type>BOOL</Type>
+													<BitSize>8</BitSize>
+													<BitOffs>48</BitOffs>
+													<Flags>
+														<Access>rw</Access>
+														<Category>o</Category>
+														<PdoMapping>R</PdoMapping>
+													</Flags>
+												</SubItem>
+											</DataType>
+											<DataType>
+												<Name>DT7000</Name>
+												<BitSize>56</BitSize>
+												<SubItem>
+													<SubIdx>0</SubIdx>
+													<Name>SubIndex 000</Name>
+													<Type>USINT</Type>
+													<BitSize>8</BitSize>
+													<BitOffs>0</BitOffs>
+													<Flags>
+														<Access>ro</Access>
+														<Category>o</Category>
+													</Flags>
+												</SubItem>
+												<SubItem>
+													<SubIdx>1</SubIdx>
+													<Name>int32FromROS</Name>
+													<Type>DINT</Type>
+													<BitSize>32</BitSize>
+													<BitOffs>16</BitOffs>
+													<Flags>
+														<Access>ro</Access>
+														<Category>o</Category>
+														<PdoMapping>T</PdoMapping>
+													</Flags>
+												</SubItem>
+												<SubItem>
+													<SubIdx>2</SubIdx>
+													<Name>BoolFromROS</Name>
+													<Type>BOOL</Type>
+													<BitSize>8</BitSize>
+													<BitOffs>48</BitOffs>
+													<Flags>
+														<Access>ro</Access>
+														<Category>o</Category>
+														<PdoMapping>T</PdoMapping>
+													</Flags>
+												</SubItem>
+											</DataType>
+										</DataTypes>
+										<Objects>
+											<Object>
+												<Index>#x1a08</Index>
+												<Name>IO Outputs</Name>
+												<Type>DT1A08</Type>
+												<BitSize>80</BitSize>
+												<Info>
+													<SubItem>
+														<Name>SubIndex 000</Name>
+														<Info>
+															<DefaultData>02</DefaultData>
+														</Info>
+													</SubItem>
+													<SubItem>
+														<Name>SubIndex 001</Name>
+														<Info>
+															<DefaultData>20010060</DefaultData>
+														</Info>
+													</SubItem>
+													<SubItem>
+														<Name>SubIndex 002</Name>
+														<Info>
+															<DefaultData>08020060</DefaultData>
+														</Info>
+													</SubItem>
+												</Info>
+												<Flags>
+													<Access>ro</Access>
+													<Category>o</Category>
+												</Flags>
+											</Object>
+											<Object>
+												<Index>#x1608</Index>
+												<Name>IO Inputs</Name>
+												<Type>DT1A08</Type>
+												<BitSize>80</BitSize>
+												<Info>
+													<SubItem>
+														<Name>SubIndex 000</Name>
+														<Info>
+															<DefaultData>02</DefaultData>
+														</Info>
+													</SubItem>
+													<SubItem>
+														<Name>SubIndex 001</Name>
+														<Info>
+															<DefaultData>20010070</DefaultData>
+														</Info>
+													</SubItem>
+													<SubItem>
+														<Name>SubIndex 002</Name>
+														<Info>
+															<DefaultData>08020070</DefaultData>
+														</Info>
+													</SubItem>
+												</Info>
+												<Flags>
+													<Access>ro</Access>
+													<Category>o</Category>
+												</Flags>
+											</Object>
+											<Object>
+												<Index>#x1c12</Index>
+												<Name>RxPDO assign</Name>
+												<Type>DT1C12</Type>
+												<BitSize>32</BitSize>
+												<Info>
+													<SubItem>
+														<Name>SubIndex 000</Name>
+														<Info>
+															<MinValue>#x0</MinValue>
+															<MaxValue>#x1</MaxValue>
+															<DefaultValue>#x1</DefaultValue>
+														</Info>
+													</SubItem>
+													<SubItem>
+														<Name>SubIndex 001</Name>
+														<Info>
+															<DefaultData>0816</DefaultData>
+														</Info>
+													</SubItem>
+												</Info>
+												<Flags>
+													<Access>ro</Access>
+													<Category>o</Category>
+												</Flags>
+											</Object>
+											<Object>
+												<Index>#x1c13</Index>
+												<Name>TxPDO assign</Name>
+												<Type>DT1C13</Type>
+												<BitSize>32</BitSize>
+												<Info>
+													<SubItem>
+														<Name>SubIndex 000</Name>
+														<Info>
+															<MinValue>#x0</MinValue>
+															<MaxValue>#x1</MaxValue>
+															<DefaultValue>#x1</DefaultValue>
+														</Info>
+													</SubItem>
+													<SubItem>
+														<Name>SubIndex 001</Name>
+														<Info>
+															<DefaultData>081a</DefaultData>
+														</Info>
+													</SubItem>
+												</Info>
+												<Flags>
+													<Access>ro</Access>
+													<Category>o</Category>
+												</Flags>
+											</Object>
+											<Object>
+												<Index>#x6000</Index>
+												<Name>Outputs</Name>
+												<Type>DT6000</Type>
+												<BitSize>56</BitSize>
+												<Info>
+													<SubItem>
+														<Name>SubIndex 000</Name>
+														<Info>
+															<MinValue>#x0</MinValue>
+															<MaxValue>#xff</MaxValue>
+															<DefaultValue>#x2</DefaultValue>
+														</Info>
+													</SubItem>
+													<SubItem>
+														<Name>int32ToROS</Name>
+														<Info>
+															<DefaultData>00000000</DefaultData>
+														</Info>
+													</SubItem>
+													<SubItem>
+														<Name>BoolToROS</Name>
+														<Info>
+															<DefaultData>00</DefaultData>
+														</Info>
+													</SubItem>
+												</Info>
+												<Flags>
+													<Access>ro</Access>
+													<Category>o</Category>
+												</Flags>
+											</Object>
+											<Object>
+												<Index>#x7000</Index>
+												<Name>Inputs</Name>
+												<Type>DT7000</Type>
+												<BitSize>56</BitSize>
+												<Info>
+													<SubItem>
+														<Name>SubIndex 000</Name>
+														<Info>
+															<DefaultData>02</DefaultData>
+														</Info>
+													</SubItem>
+													<SubItem>
+														<Name>int32FromROS</Name>
+														<Info>
+															<DefaultData>00000000</DefaultData>
+														</Info>
+													</SubItem>
+													<SubItem>
+														<Name>BoolFromROS</Name>
+														<Info>
+															<DefaultData>00</DefaultData>
+														</Info>
+													</SubItem>
+												</Info>
+												<Flags>
+													<Access>ro</Access>
+													<Category>o</Category>
+												</Flags>
+											</Object>
+										</Objects>
+									</Dictionary>
+								</Profile>
+							</TreeItem>
+						</Xml>
+						<EtherCAT SlaveType="3" AdsServerAddress="052296560203e903" PdiType="#x0008" MboxDataLinkLayer="true" StateMBoxPolling="true" CycleMBoxPollingTime="0" CoeType="47" EoeType="1" FoeType="1" VendorId="#x00000002" ProductCode="#x1a273052" RevisionNo="#x00040000" InfoDataAddr="true" InfoDataNetId="true" TimeoutMailbox2="2000" GenerateOwnNetId="true" CheckRevisionNoType="3" PortPhys="51" DcTimeLoopControlOnly="true" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="EL6695 EtherCAT Bridge terminal (Primary)" Desc="EL6695" PortABoxInfo="#x01000001">
+							<SyncMan>0010000426000100010000008000da050004001026010000</SyncMan>
+							<SyncMan>0016000422000100020000008000da050004001622010000</SyncMan>
+							<SyncMan>001c05006400010003000000000000000000001c64010000</SyncMan>
+							<SyncMan>008e05002000010004000000000000000200008e20010000</SyncMan>
+							<Fmmu>0000000000000000001c00020100000001000000000000000000000000000000</Fmmu>
+							<Fmmu>0000000000000000008e00010100000002000000000000000000000000000000</Fmmu>
+							<Fmmu>00000000000000000d0800010100000003000000000000000000000000000000</Fmmu>
+							<SwitchPortData>00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</SwitchPortData>
+							<BootStrapData>0010140200141402</BootStrapData>
+							<DcMode>4672656552756e0000000000000000004672656552756e00000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000</DcMode>
+							<DcMode>4443000000000000000000000000000044432d53796e6368726f6e000000000000000000000000000000000000000000000000000000000000000000000020030100000000000000000000000000000000000000000000000000000000000000</DcMode>
+							<Pdo Name="SYNC Inputs" Index="#x1a01" Flags="#x0010">
+								<ExcludePdo>#x1a02</ExcludePdo>
+								<ExcludePdo>#x1a03</ExcludePdo>
+								<Entry BitLen="12">
+									<Type GUID="{18071995-0000-0000-0000-00200000000C}">ARRAY [0..11] OF BIT</Type>
+								</Entry>
+								<Entry Name="TxPDO toggle" BitLen="1" Index="#x1801" Sub="#x09">
+									<Type>BIT</Type>
+									<Comment><![CDATA[Bit toggles when new data from other side received]]></Comment>
+								</Entry>
+								<Entry Name="TxPDO state" BitLen="1" Index="#x1801" Sub="#x07">
+									<Type>BIT</Type>
+									<Comment><![CDATA[0: Other side is in OP state
+>0: Error]]></Comment>
+								</Entry>
+								<Entry BitLen="1">
+									<Type GUID="{18071995-0000-0000-0000-002000000001}">ARRAY [0..0] OF BIT</Type>
+								</Entry>
+								<Entry Name="External device not connected" BitLen="1" Index="#x10f4" Sub="#x10">
+									<Type>BIT</Type>
+									<Comment><![CDATA[0: External device connected
+1: External device not connected]]></Comment>
+								</Entry>
+							</Pdo>
+							<Pdo Name="SYNC Inputs" Index="#x1a02" Flags="#x0010">
+								<ExcludePdo>#x1a01</ExcludePdo>
+								<ExcludePdo>#x1a03</ExcludePdo>
+								<Entry Name="Sync Mode" BitLen="2" Index="#x10f4" Sub="#x02">
+									<Type>BIT2</Type>
+									<Comment><![CDATA[0: no Syncronisation
+1: Secondary side is Sync Master
+2: Primary side is Sync Master]]></Comment>
+								</Entry>
+								<Entry BitLen="10">
+									<Type GUID="{18071995-0000-0000-0000-00200000000A}">ARRAY [0..9] OF BIT</Type>
+								</Entry>
+								<Entry Name="TxPDO toggle" BitLen="1" Index="#x1802" Sub="#x09">
+									<Type>BIT</Type>
+									<Comment><![CDATA[Bit toggles when new data from other side received]]></Comment>
+								</Entry>
+								<Entry Name="TxPDO state" BitLen="1" Index="#x1802" Sub="#x07">
+									<Type>BIT</Type>
+									<Comment><![CDATA[0: Other side is in OP state
+>0: Error]]></Comment>
+								</Entry>
+								<Entry Name="Timestamp update toggle" BitLen="1" Index="#x10f4" Sub="#x0f">
+									<Type>BIT</Type>
+									<Comment><![CDATA[Bit toggles when new timestamp data available]]></Comment>
+								</Entry>
+								<Entry Name="External device not connected" BitLen="1" Index="#x10f4" Sub="#x10">
+									<Type>BIT</Type>
+									<Comment><![CDATA[0: External device connected
+1: External device not connected]]></Comment>
+								</Entry>
+								<Entry Name="Internal time stamp" BitLen="64" Index="#x10f4" Sub="#x11">
+									<Type>ULINT</Type>
+								</Entry>
+								<Entry Name="External time stamp" BitLen="64" Index="#x10f4" Sub="#x12">
+									<Type>ULINT</Type>
+								</Entry>
+								<Entry BitLen="32">
+									<Type GUID="{18071995-0000-0000-0000-002000000020}">ARRAY [0..3] OF BYTE</Type>
+								</Entry>
+							</Pdo>
+							<Pdo Name="SYNC Inputs" Index="#x1a03" Flags="#x0010">
+								<ExcludePdo>#x1a01</ExcludePdo>
+								<ExcludePdo>#x1a02</ExcludePdo>
+								<Entry Name="Sync Mode" BitLen="2" Index="#x10f4" Sub="#x02">
+									<Type>BIT2</Type>
+									<Comment><![CDATA[0: no Syncronisation
+1: Secondary side is Sync Master
+2: Primary side is Sync Master]]></Comment>
+								</Entry>
+								<Entry BitLen="10">
+									<Type GUID="{18071995-0000-0000-0000-00200000000A}">ARRAY [0..9] OF BIT</Type>
+								</Entry>
+								<Entry Name="TxPDO toggle" BitLen="1" Index="#x1803" Sub="#x09">
+									<Type>BIT</Type>
+									<Comment><![CDATA[Bit toggles when new data from other side received]]></Comment>
+								</Entry>
+								<Entry Name="TxPDO state" BitLen="1" Index="#x1803" Sub="#x07">
+									<Type>BIT</Type>
+									<Comment><![CDATA[0: Other side is in OP state
+>0: Error]]></Comment>
+								</Entry>
+								<Entry Name="Timestamp update toggle" BitLen="1" Index="#x10f4" Sub="#x0f">
+									<Type>BIT</Type>
+									<Comment><![CDATA[Bit toggles when new timestamp data available]]></Comment>
+								</Entry>
+								<Entry Name="External device not connected" BitLen="1" Index="#x10f4" Sub="#x10">
+									<Type>BIT</Type>
+									<Comment><![CDATA[0: External device connected
+1: External device not connected]]></Comment>
+								</Entry>
+								<Entry Name="Internal time stamp" BitLen="32" Index="#x10f4" Sub="#x11">
+									<Type>UDINT</Type>
+								</Entry>
+								<Entry Name="External time stamp" BitLen="32" Index="#x10f4" Sub="#x12">
+									<Type>UDINT</Type>
+								</Entry>
+								<Entry BitLen="32">
+									<Type GUID="{18071995-0000-0000-0000-002000000020}">ARRAY [0..3] OF BYTE</Type>
+								</Entry>
+							</Pdo>
+							<Pdo Name="FOE Info" Index="#x1a05" Flags="#x0020">
+								<Entry Name="Data Bytes Pending" BitLen="16" Index="#xf650" Sub="#x01">
+									<Type>UINT</Type>
+								</Entry>
+							</Pdo>
+							<Pdo Name="IO Inputs" Index="#x1a08" Flags="#x0020" SyncMan="3">
+								<Entry Name="int32FromROS" BitLen="32" Index="#x6000" Sub="#x01">
+									<Type>DINT</Type>
+								</Entry>
+								<Entry Name="BoolFromROS" BitLen="8" Index="#x6000" Sub="#x02">
+									<Type>BOOL</Type>
+								</Entry>
+							</Pdo>
+							<Pdo Name="IO Outputs" Index="#x1608" InOut="1" Flags="#x0020" SyncMan="2">
+								<Entry Name="int32ToROS" BitLen="32" Index="#x7000" Sub="#x01">
+									<Type>DINT</Type>
+								</Entry>
+								<Entry Name="BoolToROS" BitLen="8" Index="#x7000" Sub="#x02">
+									<Type>BOOL</Type>
+								</Entry>
+							</Pdo>
+							<CoeProfile ProfileNo="5001"/>
+						</EtherCAT>
+					</Box>
+					<Box Id="3" BoxType="9099">
+						<Name>Term 3 (EL9011)</Name>
+						<ImageId>1002</ImageId>
+						<EtherCAT CycleMBoxPollingTime="0" VendorId="#x00000002" ProductCode="#x23333050" InfoDataState="false" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="EL9011 End Terminal" Desc="EL9011" PortABoxInfo="#x01000002"/>
+					</Box>
+				</Box>
+				<EtherCAT EnableVirtualSwitch="true" MaxSwitchPorts="2" MaxSwitchFrames="120"/>
+			</Device>
+		</Io>
+	</Project>
+	<Mappings>
+		<MappingInfo Identifier="{00000000-2041-0850-4020-500810000403}" Id="#x02030010"/>
+		<OwnerA Name="TIPC^example^example Instance">
+			<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 1 (EK1200)^Term 2 (EL6695)">
+				<Link VarA="PlcTask Inputs^MAIN.testBoolFromROS" VarB="IO Inputs^BoolFromROS"/>
+				<Link VarA="PlcTask Inputs^MAIN.testInt32FromROS" VarB="IO Inputs^int32FromROS"/>
+				<Link VarA="PlcTask Outputs^MAIN.testBoolToROS" VarB="IO Outputs^BoolToROS"/>
+				<Link VarA="PlcTask Outputs^MAIN.testInt32ToROS" VarB="IO Outputs^int32ToROS"/>
+			</OwnerB>
+		</OwnerA>
+	</Mappings>
+</TcSmProject>

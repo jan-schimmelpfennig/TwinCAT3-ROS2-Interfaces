@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.8">
+  <POU Name="MAIN" Id="{e96d7a0d-bb8f-4136-b08d-2b507f1fe644}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	stUdpToSend AT %I* : ST_toROS; 
+	stUdpReceived AT %Q* : ST_fromROS; 
+	
+	
+	fbUdpSenderReceiver : FB_UdpSenderReceiver(
+	   
+	   //set here your Ipv4 address (Ipv4 address of your ROS running device)
+		nIpDestA_ := 50, 	//in decimal
+		nIpDestB_ := 50, 	//in decimal
+		nIpDestC_ := 50, 	//in decimal
+		nIpDestD_ := 1, 	//in decimal
+		nPortDest_ := 11000, //ROS port
+		nPortSrc_ := 10000,  //TwinCAT port
+		pDataToSend_ := ADR(stUdpToSend), 
+		pDataReceived_ := ADR(stUdpReceived),
+		nKeyword_ := 42
+		
+		);
+	counter : UINT := 0;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[stUdpToSend.aByte:=16#33;
+//stUdpToSend.counter := 4000;
+fbUdpSenderReceiver();
+// Increment the counter inside the struct
+stUdpToSend.counter := stUdpToSend.counter + 1;
+// Optional: Reset if it reaches a certain value
+IF stUdpToSend.counter > 10000 THEN
+    stUdpToSend.counter := 0;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="337" Count="1" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="331" Count="1" />
+      <LineId Id="334" Count="2" />
+      <LineId Id="183" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

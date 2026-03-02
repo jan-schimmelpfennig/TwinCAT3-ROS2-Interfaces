@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.8">
+  <DUT Name="ST_UdpFromROS" Id="{27feec1e-e80f-4686-a15e-89de129a738a}">
+    <Declaration><![CDATA[{attribute 'pack_mode' := '1'} //no padding
+TYPE ST_UdpFromROS : 
+STRUCT
+	Keyword : USINT; //don't remove
+	Crc8 : USINT;	//don't remove
+	lastReceivedTimestampCx: ULINT;
+	
+	aByte : USINT;
+	counter : INT;
+	// add your own variables to send (don't forget to change it on the client side as well)
+	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>
