@@ -1,15 +1,22 @@
-# TC3ROS2 interface
+# UDP interface ROS2-TC3
 
 This project showcases a very simple bidirectional real-time UDP/IP interface between an application running in ROS2 (on a Linux based system) and an application running in hard-realtime on a Beckhoff PLC - CX. This project was tested on a yoga pro 9 16IMH laptop running ROS2 -jazzy jalisco and a CX2020 running TwinCAT 4026.12..
 
-<details>
-  <summary>Why and How UDP/IP communication?</summary>
-  It is faster than TCP/IP (is ideal for applications that require low latency, high throughput). The shortcoming of UDP/IP is that packages might get lost. For safety-critical applications in medical robotics this might be a bit of a problem. This is why it is good practice to implement your own application level logic. What does that mean? UDP/IP uses by default checksums, but these are just for general network integrity. A bit in your payload might still have flipped and so your data is corrupted. Another problem is that UDP messages don't arrive in order. So how do you know whether the package is from a second ago? In industry one refers to the “black channel” which is defined in the IEC61508 - you cant trust the network and should implement your own safety such as profinet for instance (https://www.phoenixcontact.com/en-pc/industries/functional-safety/black-channel-principle).
-To deal with these problems this sample project implements on the application level (before the message is serialized and packed as a UDP message):
-- Timestamp: The CX system sends its timestamp with every message. Each other system in the network echoes the last received timestamp. This is how you get the latency.
-- Checksum: To ensure that no bit has flipped in your message, we calculate a checksum on the payload. The checksum is calculated by adding up the bits using a generator polynomial (in this project 0x07).    
-- Keyword: The keyword helps to distinguish between messages containing different data. (If you set it consistently when making changes to your code, you can avoid using different versions on both ends.) 
-</details>
+## Why and How UDP? - Application Layer Safety Mechanisms
+
+UDP was chosen because it provides low latency and minimal protocol overhead. In real-time control systems, retransmission delays introduced by TCP/IP are often undesirable.
+
+A well-known example of an "enhanced" UDP interface is the Fast Research Interface (FRI) of the KUKA Lightweight Robot. The FRI uses UDP sockets to exchange cyclic control data between a remote computer and the robot controller. The protocol incorporates a continuously incrementing counter to detect packet loss and measure latency. A state machine supervises the connection and switches the robot to a safe state if timing constraints are violated.
+
+This repository implements a similar UDP-based interface with application-layer supervision. The UDP itself doesn't guarantee delivery, ordering, or the integrity of the payload. So, safety mechanisms are put directly in the message format according to the black-channel principle defined in IEC 61508.
+
+Each exchanged message contains:
+
+- Keyword – identifies the message type and prevents mismatched protocol versions
+- Timestamp – generated in the real-time system and echoed by the remote system to measure latency and detect stale data
+- CRC-8 checksum – ensures payload integrity
+
+On the PLC side, these checks are evaluated cyclically. If a checksum fails or the received timestamp exceeds the configured timeout window, the PLC independently transitions to a safe state.
 
 ## Sample Project
 
@@ -42,7 +49,7 @@ As you can see from the schematic, two ROS packages (protocol_layer and transpor
 ![Architecture Diagram](ros2_architecture_UDP.png)
 
 ### TwinCAT3 side
-In the PLC project the MAIN program calls a the function block __FB_UdpSenderReceiver__ that implements the interface ITcIoUdpProtocolRecv  as explained in [TF6311 | TwinCAT 3 TCP/UDP Realtime](https://infosys.beckhoff.com/english.php?content=../content/1033/tf6311_tc3_tcpudp/1412819083.html&id=). This Function block has the methods:
+In the PLC project the MAIN program calls the function block __FB_UdpSenderReceiver__ that implements the interface ITcIoUdpProtocolRecv  as explained in [TF6311 | TwinCAT 3 TCP/UDP Realtime](https://infosys.beckhoff.com/english.php?content=../content/1033/tf6311_tc3_tcpudp/1412819083.html&id=). This Function block has the methods:
 - FB_init: store the configuration (destiantion ip and port etc.) that you gave in main into variables; gets udp protocol interface; opens the udp port.
 - FB_reinit: if you apply online changes
 - FB_exit: close udp port
@@ -135,13 +142,12 @@ If the launch fails or data isn't flowing, verify the physical connection betwee
 ### Wireshark
 Wireshark is extremly useful to understand what is actually sent. Launch it with elevated permissions (sudo) and track the network traffic on the ethernet adpater that you have configured at Ipv4: 50.50.50.1. 
 
+## Performance
+Round-trip latency was evaluated relative to the 1 ms PLC control cycle. Since the PLC samples incoming network data cyclically, latency variations below one cycle are not observable at the control level and therefore are not safety-relevant.
+The average roundtrip time was measured at 3ms. The maximum payload is 1444 bytes (headers are 56 bytes). This could be increased by using Jumbo frames.
+
 ## Roadmap
 A next step would be to test how fast the ROS side can run. It runs at the moment at 10Hz.
 
-## Contributing
-Contact jan.schimmelpfennig@unibas.ch if you have questions.
-
-## Authors and acknowledgment
-Credits to Lorin Fasel. The PLC project was started of from Lorins PLC project for the UDP communication with the Falcon: https://dbe-gitlab.dbe.unibas.ch/BIROMED-Lab/forcedimension-throttle-for-udp 
 
 

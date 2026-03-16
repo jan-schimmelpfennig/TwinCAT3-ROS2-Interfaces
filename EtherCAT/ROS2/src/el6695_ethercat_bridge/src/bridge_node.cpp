@@ -98,13 +98,13 @@ void BridgeNode::ethercatLoop()
 
 void BridgeNode::publishState()
 {
-        std_msgs::msg::Int32 out;
+        std_msgs::msg::Int32 out_int;
         {
         std::lock_guard<std::mutex> lock(mutex_);
-        out.data = rx_.counter;
+        out_int.data = rx_.counter;
         }
-        RCLCPP_DEBUG(this->get_logger(), "Publishing state: counter=%d", out.data);
-        pub_->publish(out);
+        //RCLCPP_DEBUG(this->get_logger(), "Publishing state: counter=%d", out_int.data);
+        pub_->publish(out_int);
 
         // Publish bool
         std_msgs::msg::Bool out_bool;

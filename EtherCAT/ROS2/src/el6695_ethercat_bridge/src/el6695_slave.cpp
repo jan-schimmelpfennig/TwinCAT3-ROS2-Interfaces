@@ -99,7 +99,7 @@ bool EL6695Slave::configure()
         RCLCPP_ERROR(logger_, "Failed to get domain process data pointer");
         return false;
     }
-    RCLCPP_INFO(logger_, "Domain process data pointer obtained — slave ready");
+    RCLCPP_INFO(logger_, "Domain process data pointer obtained — el6695 ready");
 
     return true;
 }
@@ -109,10 +109,11 @@ void EL6695Slave::process()
     ecrt_master_receive(master_);
     ecrt_domain_process(domain_);
 
-    std::memcpy(domain_pd_ + offset_tx_counter_, &tx_.counter, sizeof(tx_.counter));
-    std::memcpy(domain_pd_ + offset_tx_bool_, &tx_.flag, sizeof(tx_.flag));
     std::memcpy(&rx_.counter, domain_pd_ + offset_rx_counter_, sizeof(rx_.counter));
-    std::memcpy(&rx_.counter, domain_pd_ + offset_rx_bool_, sizeof(rx_.flag));
+    std::memcpy(domain_pd_ + offset_tx_counter_, &tx_.counter, sizeof(tx_.counter));
+    std::memcpy(&rx_.flag, domain_pd_ + offset_rx_bool_, sizeof(rx_.flag));
+    std::memcpy(domain_pd_ + offset_tx_bool_, &tx_.flag, sizeof(tx_.flag));
+
 
     ecrt_domain_queue(domain_);
     ecrt_master_send(master_);

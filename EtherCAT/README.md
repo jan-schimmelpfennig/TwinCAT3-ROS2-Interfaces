@@ -13,8 +13,9 @@
 - [Hardware & Software Setup](#hardware--software-setup)
 - [Architecture](#architecture)
 - [Quick Start](#quick-start)
-- [How to Add Variables](#how-to-add-variables)
+- [How to Add Variables? How modify the I/O?](#how-to-add-variables)
 - [Testing](#testing)
+- [Performance Test](#performance-test)
 - [Further Work](#further-work)
 
 ---
@@ -22,17 +23,9 @@
 ## About
 
 This repository implements a **ROS2 ↔ TwinCAT3 communication interface over EtherCAT** using the **Beckhoff EL6695 master-to-master bridge terminal**.
+The EL6695 enables symmetric PDO mapping between two independent EtherCAT masters. The primary side is connected to TwinCAT3. The secondary side is connected to ROS2. 
 
-Although ROS2 runs an EtherCAT master (via the IgH EtherCAT driver), it is **conceptually treated as a slave** in the overall system architecture. The deterministic, cyclic real-time control remains fully inside TwinCAT3. ROS2 operates on the non-deterministic Linux side and exchanges data with the PLC via the EL6695 bridge.
-
-The EL6695 enables symmetric PDO mapping between two independent EtherCAT masters. On the TwinCAT side, real-time control logic executes deterministically. On the ROS2 side, variables are exposed as ROS topics and can be consumed by higher-level, event-driven applications such as perception, planning, or monitoring.
-
-### Architectural Premise
-
-- The PLC (TwinCAT3) is the **real-time authority**.
-- ROS2 is **not used for motion control or deterministic tasks**.
-- The EtherCAT determinism boundary ends at the Linux NIC.
-- The EL6695 provides safe, cyclic, hardware-level synchronization between both worlds.
+Although ROS2 runs an EtherCAT master (via the IgH EtherCAT driver), it is **conceptually treated as a slave** in the overall system architecture. Control remains within TwinCAT3. ROS suggests actions that are verified in the PLC.
 
 > **Note:** If you want to use ROS2 directly for real-time control (e.g. motion control), do not use this repository. Instead use [ethercat_driver_ros2 by ICube Lab](https://github.com/ICube-Robotics/ethercat_driver_ros2), which integrates EtherLab with `ros2_control`.
 
@@ -43,7 +36,7 @@ The EL6695 enables symmetric PDO mapping between two independent EtherCAT master
 <details>
 <summary>Click to expand</summary>
 
-EtherCAT has become the standard fieldbus in both industrial robotics and research. Rather than sending individual Ethernet frames to each device (wasteful — the minimum Ethernet frame is 84 bytes), a fieldbus passes a single frame through all devices in a ring, with each subdevice reading and writing to its assigned location in the frame on the fly.
+EtherCAT is now the most common fieldbus in industrial robotics and research. Instead of sending individual Ethernet frames to each device (this is wasteful, as the minimum Ethernet frame is 84 bytes), a fieldbus sends a single frame through all devices in a ring. Each subdevice reads and writes to its assigned location in the frame as it goes.
 
 EtherCAT has several built-in reliability mechanisms that can be used for a reliable communication:
 
@@ -90,43 +83,13 @@ EtherCAT has several built-in reliability mechanisms that can be used for a reli
 
 ## Architecture
 
-The implementation follows a **layered architecture**:
-
-```
-TwinCAT3 (CX2043)
-    │  via EtherCAT E-bus
-    ▼
-EL6695 (Primary ↔ Secondary)
-    │  via RJ-45 / Standard Ethernet
-    ▼
-NIC (Linux)
-    │
-    ▼
-Etherlab IgH EtherCAT Driver  [Kernel Space]
-    │  ecrt.h API
-    ▼
-bridge_node  [User Space / ROS2]
-    ├── ethercatLoop()  @ 1 kHz     ←→  EtherCAT frames
-    └── ROS Executor thread @ 100 Hz ←→  ROS2 topics
-```
-
 ### ROS2 Node Design
 
-The `bridge_node` is split into two threads:
+The `bridge_node` is implemented using two threads.
 
-**`ethercatLoop()` — 1 kHz thread**
+A **1 kHz thread (`ethercatLoop()`)** handles the cyclic EtherCAT communication with the EL6695 bridge. In each cycle, the node first calls `ecrt_master_receive()` to pull the latest frame from the network interface hardware buffer. The received data are then processed with `ecrt_domain_process()`, which validates the working counter (WKC) and maps the process data into the application memory. The node reads input data and prepares output data using `std::memcpy`. After updating the process data, `ecrt_domain_queue()` prepares the memory buffer for transmission and `ecrt_master_send()` sends the frame back onto the EtherCAT network.
 
-| Step | Function | Direction | Description |
-|------|----------|-----------|-------------|
-| 1 | `ecrt_master_receive` | EL6695 → Master | Pull raw data from NIC hardware buffer |
-| 2 | `ecrt_domain_process` | Master → Memory | Validate WKC, map data into process data pointer |
-| 3 | `std::memcpy` | Application | Read inputs / write outputs |
-| 4 | `ecrt_domain_queue` | Memory → Master | Queue updated data for transmission |
-| 5 | `ecrt_master_send` | Master → Hardware | Send frame onto the wire |
-
-**ROS Executor thread — 100 Hz**
-
-Handles all ROS2 publishers and subscribers. A `std::mutex` ensures the two threads never access the shared `tx_` / `rx_` structs simultaneously.
+All ROS2 publishers and subscribers run in a separate **ROS executor thread at 100 Hz**. Communication between the executor and the EtherCAT loop occurs through shared `tx_` and `rx_` data structures. Access to these structures is protected by a `std::mutex` to ensure that the EtherCAT loop and the ROS executor never access the shared memory simultaneously.
 
 ### PDO Layout (current)
 
@@ -157,15 +120,6 @@ struct FromTwinCAT {
 };
 #pragma pack(pop)
 ```
-
-### ROS2 Topics
-
-| Topic | Type | Direction |
-|-------|------|-----------|
-| `/to_twincat_counter` | `std_msgs/Int32` | ROS2 → TwinCAT |
-| `/to_twincat_bool` | `std_msgs/Bool` | ROS2 → TwinCAT |
-| `/from_twincat_counter` | `std_msgs/Int32` | TwinCAT → ROS2 |
-| `/from_twincat_bool` | `std_msgs/Bool` | TwinCAT → ROS2 |
 
 ---
 
@@ -409,6 +363,37 @@ el6695_ethercat_bridge/
 ```
 
 ---
+
+## Performance Test
+
+Roundtrip latency was evaluated in units of the 1 ms PLC cycle. Since the PLC samples incoming data cyclically, latency variations below the cycle time are not observable at the control level and are therefore not safety-relevant.
+
+For the evaluation, a counter value sent from the primary side (TwinCAT PLC) was echoed back by the secondary side. The measured roundtrip time therefore is the time required for a complete request–response cycle.
+
+Three scenarios were evaluated:
+
+1. **Primary:** Beckhoff PLC (TwinCAT 3)  
+   **Secondary:** Beckhoff PLC (TwinCAT 3, no DC synchronization)  
+   Average roundtrip time: **5 PLC cycles (≈5 ms)**.  
+   This matches the EL6695 datasheet, which specifies **4–6 cycles** depending on task jitter and relative task start times.
+
+2. **Primary:** Beckhoff PLC (TwinCAT 3)  
+   **Secondary:** Linux workstation running ROS2 (IgH EtherCAT master)  
+   The received value was immediately echoed in the fast EtherCAT loop.  
+   Average roundtrip time: **≈3 PLC cycles (≈3 ms)** under mild computational load.
+
+3. **Primary:** Beckhoff PLC (TwinCAT 3)  
+   **Secondary:** Linux workstation running ROS2  
+   The received value was forwarded through the ROS executor (`/to_twinCAT_counter` topic).  
+   With publishers and subscribers running at **1 kHz**, the average roundtrip time remained **≈3 ms**.
+
+The experiments show that an event-driven system can sometimes respond faster than a purely cyclic system. However, in safety-critical applications the **deterministic response time** is more important than the fastest possible response.
+
+### CPU Stress Test
+
+To evaluate the effect of system load on the ROS2 workstation, the following stress test was executed:
+`stress-ng --cpu 12 --vm 8 --vm-bytes 70% --io 4 --timeout 60s`
+This generates heavy CPU, memory, and I/O load simultaneously. Under these conditions, the roundtrip latency increased to approximately **4 ms**, demonstrating that system load on the non-real-time side can influence response time.
 
 ## Further Work
 

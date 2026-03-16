@@ -15,7 +15,7 @@ namespace el6695_bridge
         CounterPublisher()
         : Node("counter_publisher"), counter_(0)
         {
-            pub_ = create_publisher<std_msgs::msg::Int32>("to_twincat", 10);
+            pub_ = create_publisher<std_msgs::msg::Int32>("to_twincat_counter", 10);
 
             timer_ = create_wall_timer(
             std::chrono::milliseconds(100),
