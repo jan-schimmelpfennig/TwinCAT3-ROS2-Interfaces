@@ -1,6 +1,10 @@
 # ROS2 ↔ TwinCAT3 Interfaces
 
-## Motivation
+## About
+This repository demonstrates **two different bi-directional communication approaches for connecting ROS2 running on Linux with a Beckhoff PLC running TwinCAT3**.
+Both presented interfaces enforce a strict separation between deliberative computation and deterministic control. In both architectures, safety authority remains entirely within the real-time domain. The ROS~2 system is treated as a supervised external component whose outputs are conditionally admitted to the real-time layer.
+
+<details><summary>Motivation and System Architecture</summary>
 
 Medical robotic systems should rely on deterministic real-time control to ensure predictable and safe interaction with hardware. At the same time, there is a growing interest in incorporating advanced perception, planning, and learning-based capabilities into robotic systems.
 
@@ -15,56 +19,79 @@ To combine deterministic control with a non-real-time system, we propose a **lay
 
 The challenge lies in designing the interface between the non-real-time and real-time systems (shaded red in the figure). Why? Because failures in the non-real-time system could affect the hardware. 
 
-This repository demonstrates two different bi-directional communication approaches for connecting a ROS2 running on Linux with a Beckhoff PLC running TwinCAT3.
-Both presented interfaces enforce a strict separation between deliberative computation and deterministic control. In both architectures, safety authority remains entirely within the real-time domain. The ROS~2 system is treated as a supervised external component whose outputs are conditionally admitted to the real-time layer.
+</details>
 
-## [EtherCAT Interface](EtherCAT/README.md)
+## Implemented Interfaces
 
-The EtherCAT implementation uses the **Beckhoff EL6695 master–master bridge** to exchange cyclic data between:
+### EtherCAT Interface
+[See the full documentation for details on code structure, installation, and usage.](EtherCAT/README.md)
 
-- A TwinCAT3 PLC (real-time authority)
-- A Linux-based ROS2 system running the IgH EtherCAT master
+- Industrial fieldbus-based communication
+- Supervision handled at protocol level (working counter, watchdogs, CRC, DC sync)
+- Requires dedicated EtherCAT hardware (Master-Master bridge, EtherCAT compatible NIC)
 
-The **communication supervision is handled at the industrial fieldbus level** (EtherCAT provides built-in supervision mechanisms such as working counter validation, hardware watchdogs, distributed clock synchronization, and frame integrity checks).
+### UDP/IP Interface 
+[See the full documentation for details on code structure, installation, and usage.](UDP/README.md)
 
-
-However, this comes with higher hardware requirements:
-
-- An EtherCAT-compatible NIC on the Linux side  
-- An EtherCAT master driver (e.g. IgH / EtherLab)  
-- A master–master bridge terminal (EL6695)  
-- A PLC capable of running EtherCAT  
-
----
-
-## [UDP/IP Interface](UDP/README.md)
-
-The UDP implementation demonstrates a lightweight and vendor-independent communication interface between ROS2 and TwinCAT3 using standard Ethernet.
-
-Unlike EtherCAT, UDP does not provide intrinsic guarantees regarding delivery, ordering, or determinism. Therefore, the interface implements **supervision mechanisms at the application layer**.
-
-The application-layer mechanisms are:
-
-- Timestamp echoing for latency estimation  
-- CRC8 checksum validation  
-- Message keyword versioning  
-- User-defined timeout logic  
+- Vendor-independent communication over standard Ethernet 
+- Supervision implemented at application layer in each UDP datagram: 
+    - checksum for message integrity
+    - timestamps for communication timeout and packet order
+- No specialized hardware required
 
 
-## Architectural Recommendation
+## Design Guidelines and Recommendations
+###
 Independent of the chosen communication protocol, we highly recommend to **maintain a single determinism boundary/interface** between the ROS ecosystem and the real-time controller.
 
 Within the ROS environment, multiple perception nodes, workstations, or planning modules can communicate freely using DDS without real-time guarantees. 
 
 
-## Which interface to choose?
+### Which interface to choose?
 
 Both interfaces implement the same architectural concept but represent different engineering trade-offs. The EtherCAT-based approach is particularly suitable when industrial EtherCAT infrastructure is already available. The clamp provides in addition a galvanic isolation.
 
 The UDP-based interface, in contrast, is advantageous when the interface should run on any real-time capable platform using standard Ethernet (completely vendor-independent). 
 
-During early system development, the UDP interface was in our project more convenient because modifying the communication interface typically only requires adjusting the shared C-style data structures on both sides. EtherCAT, on the other hand, requires explicit configuration of Process Data Objects (PDOs), which makes the initial setup slightly more involved but results in a more tightly integrated industrial solution.
+During early system development, the **UDP interface** was in our project more convenient because modifying the communication interface typically only requires adjusting the shared C-style data structures on both sides. EtherCAT, on the other hand, requires explicit configuration of Process Data Objects (PDOs), which makes the initial setup slightly more involved but results in a more tightly integrated industrial solution.
 
-# Contributing
-Contact jan.schimmelpfennig@unibas.ch from the BIROMED-Lab, University of Basel if you have questions.
+## License
+This project is licensed under the Apache License 2.0. See the `LICENSE` file for details.
+
+## Contributing / Contact
+
+Contributions, feedback, and discussions are welcome.
+
+If you have questions or would like to get in touch, please contact:
+
+<table>
+  <tr>
+    <td>
+
+**Jan Schimmelpfennig**  
+BIROMED-Lab, University of Basel, 
+Switzerland  
+jan.schimmelpfennig@unibas.ch  
+
+**Michael Sommerhalder**  
+BIROMED-Lab, University of Basel, 
+Switzerland  
+michael.sommerhalder@unibas.ch  
+
+**Nicolas Gerig**  
+BIROMED-Lab, University of Basel, 
+Switzerland 
+nicolas.gerig@unibas.ch  
+
+**Georg Rauter**  
+BIROMED-Lab, University of Basel, 
+Switzerland  
+georg.rauter@unibas.ch  
+
+</td>
+<td align="right">
+    <img src="BIROMED_LOGO.png" width="300">
+</td>
+  </tr>
+</table>
 
