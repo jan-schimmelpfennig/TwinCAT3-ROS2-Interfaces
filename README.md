@@ -58,40 +58,5 @@ During early system development, the **UDP interface** was in our project more c
 ## License
 This project is licensed under the Apache License 2.0. See the `LICENSE` file for details.
 
-## Contributing / Contact
 
-Contributions, feedback, and discussions are welcome.
-
-If you have questions or would like to get in touch, please contact:
-
-<table>
-  <tr>
-    <td>
-
-**Jan Schimmelpfennig**  
-BIROMED-Lab, University of Basel, 
-Switzerland  
-jan.schimmelpfennig@unibas.ch  
-
-**Michael Sommerhalder**  
-BIROMED-Lab, University of Basel, 
-Switzerland  
-michael.sommerhalder@unibas.ch  
-
-**Nicolas Gerig**  
-BIROMED-Lab, University of Basel, 
-Switzerland 
-nicolas.gerig@unibas.ch  
-
-**Georg Rauter**  
-BIROMED-Lab, University of Basel, 
-Switzerland  
-georg.rauter@unibas.ch  
-
-</td>
-<td align="right">
-    <img src="BIROMED_LOGO.png" width="300">
-</td>
-  </tr>
-</table>
 
